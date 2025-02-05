@@ -12,6 +12,9 @@ $config = [
         '@npm'   => '@vendor/npm-asset',
     ],
     'components' => [
+        'googleSheets' => [
+            'class' => 'app\components\GoogleSheets',
+        ],
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'AwyxTNNFO1TXfhR3eYcnnd1emMCY1Mve',
@@ -42,19 +45,20 @@ $config = [
             ],
         ],
         'db' => $db,
-        /*
+
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'callbackGoogle' => 'site/callback-google',
             ],
         ],
-        */
+
     ],
     'params' => $params,
 ];
 
-if (YII_ENV_DEV) {
+if (!YII_ENV_DEV) {
     // configuration adjustments for 'dev' environment
     $config['bootstrap'][] = 'debug';
     $config['modules']['debug'] = [

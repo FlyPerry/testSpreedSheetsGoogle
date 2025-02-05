@@ -14,6 +14,9 @@ $config = [
         '@tests' => '@app/tests',
     ],
     'components' => [
+        'googleSheets' => [
+            'class' => 'app\components\GoogleSheets',
+        ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
@@ -37,7 +40,7 @@ $config = [
     */
 ];
 
-if (YII_ENV_DEV) {
+if (!YII_ENV_DEV) {
     // configuration adjustments for 'dev' environment
     $config['bootstrap'][] = 'gii';
     $config['modules']['gii'] = [

@@ -61,68 +61,40 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $tokenPath = Yii::getAlias('@app/token.json');
+        $auth = !file_exists($tokenPath);
+        return $this->render('index',['auth'=>$auth]);
     }
 
-    /**
-     * Login action.
-     *
-     * @return Response|string
-     */
-    public function actionLogin()
+    public function actionAuthGoogle(): Response
     {
-        if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
+        // Получаем экземпляр компонента GoogleSheets
+        $googleSheets = Yii::$app->googleSheets;
 
-        $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
-        }
+        // Генерируем URL для авторизации
+        $authUrl = $googleSheets->getAuthUrl();
 
-        $model->password = '';
-        return $this->render('login', [
-            'model' => $model,
-        ]);
+        // Перенаправляем пользователя на страницу авторизации Google
+        return $this->redirect($authUrl);
     }
 
-    /**
-     * Logout action.
-     *
-     * @return Response
-     */
-    public function actionLogout()
+    // Действие для обработки callback от Google
+    public function actionCallbackGoogle()
     {
-        Yii::$app->user->logout();
+        // Получаем экземпляр компонента GoogleSheets
+        $googleSheets = Yii::$app->googleSheets;
 
-        return $this->goHome();
+        // Получаем код авторизации из GET параметров
+        $authCode = Yii::$app->request->get('code');
+
+        return $this->render('confirmAuth',['authCode'=>$authCode]);
+
     }
-
-    /**
-     * Displays contact page.
-     *
-     * @return Response|string
-     */
-    public function actionContact()
+    public function actionAuth($authCode): string
     {
-        $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
-            Yii::$app->session->setFlash('contactFormSubmitted');
-
-            return $this->refresh();
-        }
-        return $this->render('contact', [
-            'model' => $model,
-        ]);
+        $googleSheets = Yii::$app->googleSheets;
+        $googleSheets->authenticateWithCode($authCode);
+        return $this->render('callback-success');
     }
 
-    /**
-     * Displays about page.
-     *
-     * @return string
-     */
-    public function actionAbout()
-    {
-        return $this->render('about');
-    }
 }
