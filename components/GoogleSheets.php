@@ -6,12 +6,17 @@ use Yii;
 use yii\base\Component;
 use Google_Client;
 use Google_Service_Sheets;
-use Google_Service_Sheets_Spreadsheet;
 use GuzzleHttp\Client;
+
 class GoogleSheets extends Component
 {
-    public $client;
-    public $service;
+    /**
+     * @var $client Google_Client
+     * @var $service Google_Service_Sheets
+     */
+
+    public Google_Client $client;
+    public Google_Service_Sheets $service;
 
     public function init()
     {
@@ -20,7 +25,7 @@ class GoogleSheets extends Component
         $this->client = new Google_Client();
 
         //https://stackoverflow.com/questions/35638497/curl-error-60-ssl-certificate-prblm-unable-to-get-local-issuer-certificate
-        $guzzleClient = new Client(array( 'curl' => array( CURLOPT_SSL_VERIFYPEER => false, ), ));
+        $guzzleClient = new Client(array('curl' => array(CURLOPT_SSL_VERIFYPEER => false,),));
         $this->client->setHttpClient($guzzleClient);
         $this->client->setApplicationName('Yii2 Google Sheets API');
         $this->client->setScopes([Google_Service_Sheets::SPREADSHEETS_READONLY]);
@@ -39,7 +44,7 @@ class GoogleSheets extends Component
         if (file_exists($tokenPath)) {
             $accessToken = json_decode(file_get_contents($tokenPath), true);
             $this->client->setAccessToken($accessToken);
-            echo 'Авторизация прошла успешно';
+            echo "Авторизация прошла успешно \n";
         }
 
         // Если токен истек, получаем новый
@@ -77,14 +82,15 @@ class GoogleSheets extends Component
         // Сохраняем токен в файл
         file_put_contents($tokenPath, json_encode($accessToken));
     }
-    public function getAuthUrl(){
+
+    public function getAuthUrl()
+    {
         return $this->client->createAuthUrl();
     }
 
-    // Получаем данные из Google Sheets
-    public function getSpreadsheetData($spreadsheetId, $range)
+    public function getSpreadsheetValues($spreadsheetId, $range) : array
     {
-        $response = $this->service->spreadsheets_values->get($spreadsheetId, $range);
-        return $response->getValues();
+        return $this->service->spreadsheets_values->get($spreadsheetId, $range)->getValues();
     }
+
 }

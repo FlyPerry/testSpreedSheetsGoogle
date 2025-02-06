@@ -7,8 +7,6 @@ use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
-use app\models\LoginForm;
-use app\models\ContactForm;
 
 class SiteController extends Controller
 {
@@ -81,8 +79,6 @@ class SiteController extends Controller
     // Действие для обработки callback от Google
     public function actionCallbackGoogle()
     {
-        // Получаем экземпляр компонента GoogleSheets
-        $googleSheets = Yii::$app->googleSheets;
 
         // Получаем код авторизации из GET параметров
         $authCode = Yii::$app->request->get('code');
